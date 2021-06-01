@@ -90,6 +90,7 @@ namespace API_WebRequest
             }
             #endregion
 
+            Console.WriteLine("Taste drücken, um vorhandene Kategorien auszulesen ...");
             Console.ReadKey();
 
             #region KategorienmitHttpRequestKlasse
@@ -135,22 +136,88 @@ namespace API_WebRequest
             #endregion
 
             #region KategorienAnlegen
+            // Hier ein neues Kategorie-Objekt anlegen und nur einige Inhalte
+            // füllen. Achtung name und parentId sind verpflichtend !!
             KategorieDetailsData newCat = new KategorieDetailsData()
             {
                 name = "Service",
                 parentId = 3,
                 active = true
             };
+            // Hier wird nach der erfolgreichen Anlage, die vom Shop neu vergebene
+            // ID gespeichert. Diese wird für PUT und DELETE Anfragen benötigt
+            int newId = 0;
+            // und nun geht´s los ...
             using (HttpRequest http = new HttpRequest(URL, "categories", credential))
             {
-                object result = http.SendData(new HttpSerializer(typeof(KategorieDetailsData)), "POST", newCat);
-                if (((ResponseClass)result).success)
+                // Die Antwort im Objekt speichern
+                ResponseClass result = 
+                    (ResponseClass)http.SendData(new HttpSerializer(typeof(KategorieDetailsData)), "POST", newCat);
+                // Hier das success auswerten
+                if (result.success)
                 {
+                    // wenn i.O. dann die Id speichern
                     Console.WriteLine("Erfolg");
+                    newId = result.data.id;
                 }
                 else
                 {
-                    Console.WriteLine("Fehler = {0}", ((ResponseClass)result).message);
+                    // falls Fehler, diese ausgeben
+                    Console.WriteLine("Fehler = {0}", result.message);
+                }
+            }
+            #endregion
+
+            Console.WriteLine("Taste drücken, um Kategorie umzubenennen ...");
+            Console.ReadKey();
+
+            #region KategorieÄndern
+            if(newId > 0)
+            {
+                newCat = new KategorieDetailsData()
+                {
+                    name = "Service test",
+                };
+                // den Namen der Kategorie ändern
+                newCat.name = "Service umbenannt";
+                // und wieder los ... Achtung, dieses Mal muss die ID der Kategorie
+                // an die URL angehangen werden
+                using (HttpRequest http = new HttpRequest(URL, "categories/"+newId , credential))
+                {
+                    ResponseClass result =
+                        (ResponseClass)http.SendData(new HttpSerializer(typeof(KategorieDetailsData)), "PUT", newCat);
+                    if (result.success)
+                    {
+                        Console.WriteLine("Erfolg");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Fehler = {0}", result.message);
+                    }
+                }
+            }
+            #endregion
+
+            Console.WriteLine("Taste drücken, um Kategorie zu löschen ...");
+            Console.ReadKey();
+
+            #region KategorieLöschen
+            if (newId > 0)
+            {
+                // und zum letzten Mal ... Achtung, beim DELETE benötigen wir natürlich
+                // kein Objekt mehr, denn es wird ja nur gelöscht.
+                using (HttpRequest http = new HttpRequest(URL, "categories/" + newId, credential))
+                {
+                    ResponseClass result =
+                        (ResponseClass)http.SendData(new HttpSerializer(typeof(KategorieDetailsData)), "DELETE", null);
+                    if (result.success)
+                    {
+                        Console.WriteLine("Erfolg");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Fehler = {0}", result.message);
+                    }
                 }
             }
             #endregion
