@@ -1,4 +1,5 @@
-﻿using System;
+﻿using API_WebRequest.Model;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -130,6 +131,27 @@ namespace API_WebRequest
                 }
                 else
                     Console.WriteLine("Abruf fehlgeschlagen! Fehler: {0}", http.Error.message);
+            }
+            #endregion
+
+            #region KategorienAnlegen
+            KategorieDetailsData newCat = new KategorieDetailsData()
+            {
+                name = "Service",
+                parentId = 3,
+                active = true
+            };
+            using (HttpRequest http = new HttpRequest(URL, "categories", credential))
+            {
+                object result = http.SendData(new HttpSerializer(typeof(KategorieDetailsData)), "POST", newCat);
+                if (((ResponseClass)result).success)
+                {
+                    Console.WriteLine("Erfolg");
+                }
+                else
+                {
+                    Console.WriteLine("Fehler = {0}", ((ResponseClass)result).message);
+                }
             }
             #endregion
         }

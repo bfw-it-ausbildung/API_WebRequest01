@@ -28,10 +28,6 @@ namespace API_WebRequest
                 {
                     DateTimeFormat = new DateTimeFormat("yyyy-MM-ddTHH:mm:sszzz")
                 });
-            serializer = new DataContractJsonSerializer(type, new DataContractJsonSerializerSettings() 
-            {
-                DateTimeFormat = new DateTimeFormat("yyyy-MM-ddTHH:mm:ssK")
-            });
         }
 
         /// <summary>
@@ -44,6 +40,16 @@ namespace API_WebRequest
         public object Deserialize(Stream stream)
         {
             return serializer.ReadObject(stream);
+        }
+
+        /// <summary>
+        /// Methode zum serialisieren der zu übertragenden Objekte.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="object">Objekt welches an den Shop übergeben werden soll</param>
+        public void Serialize(Stream stream, object @object)
+        {
+            serializer.WriteObject(stream, @object);
         }
     }
 }
